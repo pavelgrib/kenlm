@@ -61,7 +61,7 @@ struct Config {
   Config() :
 #ifndef NTHREAD
   batch_size(25000),
-  threads(boost::thread::hardware_concurrency()),
+  threads(std::thread::hardware_concurrency()),
 #endif
   phrase(false),
   context(false),
