@@ -417,7 +417,7 @@ Instances::Instances(int tune_file, const std::vector<StringPiece> &model_names,
       std::vector<WordIndex> context;
       context.push_back(bos_);
       for (std::size_t i = 0; i < tuning_words.size(); ++i) {
-        instances.push_back(boost::ref(extensions_first_->WriteBackoffs(i)), tuning_words[i]);
+        instances.push_back(std::ref(extensions_first_->WriteBackoffs(i)), tuning_words[i]);
         for (std::size_t j = 0; j < context.size(); ++j) {
           cmap[util::MurmurHashNative(&context[j], sizeof(WordIndex) * (context.size() - j))].Register(instances.back());
         }

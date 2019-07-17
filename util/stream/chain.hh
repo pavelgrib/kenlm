@@ -64,7 +64,7 @@ class Thread {
      * After a call to this constructor, the provided worker will be running within a boost thread owned by the newly constructed Thread object.
      */
     template <class Position, class Worker> Thread(const Position &position, const Worker &worker)
-      : thread_(boost::ref(*this), position, worker) {}
+      : thread_(std::ref(*this), position, worker) {}
 
     ~Thread();
 

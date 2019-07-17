@@ -18,7 +18,7 @@ template <class HandlerT> class Worker : boost::noncopyable {
     typedef typename Handler::Request Request;
 
     template <class Construct> Worker(PCQueue<Request> &in, Construct &construct, const Request &poison)
-      : in_(in), handler_(construct), poison_(poison), thread_(boost::ref(*this)) {}
+      : in_(in), handler_(construct), poison_(poison), thread_(std::ref(*this)) {}
 
     // Only call from thread.
     void operator()() {

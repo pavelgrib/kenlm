@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(Short) {
   WordIndex type_count = 10;
   std::vector<bool> prune_words;
   CorpusCount counter(input_piece, vocab.get(), true, token_count, type_count, prune_words, "", chain.BlockSize() / chain.EntrySize(), SILENT);
-  chain >> boost::ref(counter);
+  chain >> std::ref(counter);
   NGramStream<BuildingPayload> stream(chain.Add());
   chain >> util::stream::kRecycle;
 

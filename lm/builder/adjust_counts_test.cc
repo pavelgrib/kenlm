@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(Simple) {
     chains[3] >> WriteInput();
     util::stream::ChainPositions for_adjust(chains);
     for (unsigned i = 0; i < 4; ++i) {
-      chains[i] >> boost::ref(outputs[i]);
+      chains[i] >> std::ref(outputs[i]);
     }
     chains >> util::stream::kRecycle;
     std::vector<uint64_t> counts_pruned(4);

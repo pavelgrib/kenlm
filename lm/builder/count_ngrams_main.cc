@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
   std::vector<bool> empty_prune;
   std::string empty_string;
   lm::builder::CorpusCount counter(f, vocab_file.get(), vocab_table.empty(), token_count, type_count, empty_prune, empty_string, chain.BlockSize() / chain.EntrySize(), lm::THROW_UP);
-  chain >> boost::ref(counter);
+  chain >> std::ref(counter);
 
   util::stream::SortConfig sort_config;
   sort_config.temp_prefix = temp_prefix;

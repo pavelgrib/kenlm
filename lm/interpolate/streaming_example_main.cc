@@ -110,7 +110,7 @@ int main(int argc, char *argv[]) {
     // corresponding order's backoff and probability chains
     workers.push_back(
         new SplitWorker(i + 1, backoff_chains[i], prob_chains[i]));
-    ngram_inputs[i] >> boost::ref(*workers.back());
+    ngram_inputs[i] >> std::ref(*workers.back());
   }
 
   util::stream::SortConfig sort_cfg;
