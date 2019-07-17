@@ -51,7 +51,7 @@ template <class HandlerT> class Worker : boost::noncopyable {
 
     const Request poison_;
 
-    boost::thread thread_;
+    std::thread thread_;
 };
 
 template <class HandlerT> class ThreadPool : boost::noncopyable {

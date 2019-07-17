@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
     options.add_options()
       ("help,h", po::bool_switch(), "Show help message")
       ("model,m", po::value<std::string>(&model)->required(), "Model to query or convert vocab ids")
-      ("threads,t", po::value<std::size_t>(&config.threads)->default_value(boost::thread::hardware_concurrency()), "Threads to use (querying only; TODO vocab conversion)")
+      ("threads,t", po::value<std::size_t>(&config.threads)->default_value(std::thread::hardware_concurrency()), "Threads to use (querying only; TODO vocab conversion)")
       ("buffer,b", po::value<std::size_t>(&config.buf_per_thread)->default_value(4096), "Number of words to buffer per task.")
       ("vocab,v", po::bool_switch(), "Convert strings to vocab ids")
       ("query,q", po::bool_switch(), "Query from vocab ids");

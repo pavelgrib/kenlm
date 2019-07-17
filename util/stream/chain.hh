@@ -84,7 +84,7 @@ class Thread {
   private:
     void UnhandledException(const std::exception &e);
 
-    boost::thread thread_;
+    std::thread thread_;
 };
 
 /**

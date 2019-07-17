@@ -70,7 +70,7 @@ class Model : public lm::base::ModelFacade<Model, State, Vocabulary> {
   private:
     boost::scoped_ptr<nplm::neuralLM> base_instance_;
 
-    mutable boost::thread_specific_ptr<Backend> backend_;
+    mutable std::thread_specific_ptr<Backend> backend_;
 
     Vocabulary vocab_;
 
