@@ -97,11 +97,13 @@ template <class Batch, class Output> class OutputWorker {
     uint64_t base_sequence_;
 };
 
-template <class Filter, class OutputBuffer, class RealOutput> class Controller : boost::noncopyable {
+template <class Filter, class OutputBuffer, class RealOutput> class Controller {
   private:
     typedef ThreadBatch<OutputBuffer> Batch;
 
   public:
+    Controller(const Controller&) = delete;
+    Controller& opereator=(const Controller&) = delete;
     Controller(size_t batch_size, size_t queue, size_t workers, const Filter &filter, RealOutput &output)
       : batch_size_(batch_size), queue_size_(queue),
         batches_(queue),

@@ -36,8 +36,10 @@ size_t SizeNeededForCounts(const std::vector<uint64_t> &number);
  * at the end.  Hence, I just have it own a std::fstream instead of accepting
  * a separately held std::ostream.  TODO: use the fast one from estimation.
  */
-class ARPAOutput : boost::noncopyable {
+class ARPAOutput {
   public:
+    ARPAOutput(const ARPAOutput&) = delete;
+    ARPAOutput& opereator=(const ARPAOutput&) = delete;
     explicit ARPAOutput(const char *name, size_t buffer_size = 65536);
 
     void ReserveForCounts(std::streampos reserve);

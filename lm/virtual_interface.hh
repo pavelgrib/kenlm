@@ -60,7 +60,6 @@ class Vocabulary {
 
   private:
     // Disable copy constructors.  They're private and undefined.
-    // Ersatz boost::noncopyable.
     Vocabulary(const Vocabulary &);
     Vocabulary &operator=(const Vocabulary &);
 };
@@ -149,7 +148,6 @@ class Model {
     unsigned char order_;
 
     // Disable copy constructors.  They're private and undefined.
-    // Ersatz boost::noncopyable.
     Model(const Model &);
     Model &operator=(const Model &);
 };

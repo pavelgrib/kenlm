@@ -11,8 +11,10 @@
 
 namespace lm {
 
-class CountOutput : boost::noncopyable {
+class CountOutput {
   public:
+    CountOutput(const CountOutput&) = delete;
+    CountOutput& opereator=(const CountOutput&) = delete;
     explicit CountOutput(const char *name) : file_(util::CreateOrThrow(name)) {}
 
     void AddNGram(const StringPiece &line) {

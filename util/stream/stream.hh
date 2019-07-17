@@ -3,16 +3,16 @@
 
 #include "util/stream/chain.hh"
 
-#include <boost/noncopyable.hpp>
-
 #include <cassert>
 #include <stdint.h>
 
 namespace util {
 namespace stream {
 
-class Stream : boost::noncopyable {
+class Stream {
   public:
+    Stream(const Stream&) = delete;
+    Stream& opereator=(const Stream&) = delete;
     Stream() : current_(NULL), end_(NULL) {}
 
     void Init(const ChainPosition &position) {

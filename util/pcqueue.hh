@@ -79,8 +79,10 @@ inline void WaitSemaphore (Semaphore &on) {
  * so larger objects should be passed via pointer.
  * Strong exception guarantee if operator= throws.  Undefined if semaphores throw.
  */
-template <class T> class PCQueue : boost::noncopyable {
+template <class T> class PCQueue {
  public:
+  PCQueue(const PCQueue&) = delete;
+  PCQueue& opereator=(const PCQueue&) = delete;
   explicit PCQueue(size_t size)
    : empty_(size), used_(0),
      storage_(new T[size]),

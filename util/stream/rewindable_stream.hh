@@ -2,9 +2,6 @@
 #define UTIL_STREAM_REWINDABLE_STREAM_H
 
 #include "util/stream/chain.hh"
-
-#include <boost/noncopyable.hpp>
-
 #include <deque>
 
 namespace util {
@@ -17,8 +14,10 @@ namespace stream {
  * has a limit of 2 * block_size_ - 1 in distance (it does *not* buffer an
  * entire stream into memory, only a maximum of 2 * block_size_).
  */
-class RewindableStream : boost::noncopyable {
+class RewindableStream {
   public:
+    RewindableStream(const RewindableStream&) = delete;
+    RewindableStream& opereator=(const RewindableStream&) = delete;
     /**
      * Creates an uninitialized RewindableStream. You **must** call Init()
      * on it later!

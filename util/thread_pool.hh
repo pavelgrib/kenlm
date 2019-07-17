@@ -12,10 +12,13 @@
 
 namespace util {
 
-template <class HandlerT> class Worker : boost::noncopyable {
+template <class HandlerT> class Worker {
   public:
     typedef HandlerT Handler;
     typedef typename Handler::Request Request;
+
+    Worker(const Worker&) = delete;
+    Worker& opereator=(const Worker&) = delete;
 
     template <class Construct> Worker(PCQueue<Request> &in, Construct &construct, const Request &poison)
       : in_(in), handler_(construct), poison_(poison), thread_(std::ref(*this)) {}
@@ -54,10 +57,13 @@ template <class HandlerT> class Worker : boost::noncopyable {
     std::thread thread_;
 };
 
-template <class HandlerT> class ThreadPool : boost::noncopyable {
+template <class HandlerT> class ThreadPool {
   public:
     typedef HandlerT Handler;
     typedef typename Handler::Request Request;
+
+    ThreadPool(const ThreadPool&) = delete;
+    ThreadPool& opereator=(const ThreadPool&) = delete;
 
     template <class Construct> ThreadPool(std::size_t queue_length, std::size_t workers, Construct handler_construct, Request poison) : in_(queue_length), poison_(poison) {
       for (size_t i = 0; i < workers; ++i) {
@@ -106,10 +112,13 @@ template <class Handler> class RecyclingHandler {
     PCQueue<Request> &recycling_;
 };
 
-template <class HandlerT> class RecyclingThreadPool : boost::noncopyable {
+template <class HandlerT> class RecyclingThreadPool {
   public:
     typedef HandlerT Handler;
     typedef typename Handler::Request Request;
+
+    RecyclingThreadPool(const RecyclingThreadPool&) = delete;
+    RecyclingThreadPool& opereator=(const RecyclingThreadPool&) = delete;
 
     // Remember to call PopulateRecycling afterwards in most cases.
     template <class Construct> RecyclingThreadPool(std::size_t queue, std::size_t workers, Construct handler_construct, Request poison)
