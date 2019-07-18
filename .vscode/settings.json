@@ -72,6 +72,8 @@
         "vector": "cpp",
         "fstream": "cpp",
         "queue": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "numeric": "cpp",
+        "*.ipp": "cpp"
     }
 }

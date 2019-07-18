@@ -3,8 +3,6 @@
 #include "util/mmap.hh"
 #include "util/usage.hh"
 #include "util/thread_pool.hh"
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/locks.hpp>
 
 #ifdef WIN32
 #include <processthreadsapi.h>
@@ -198,8 +196,8 @@ struct ParallelTestRequest{
 
 template <class TableT>
 struct ParallelTestConstruct{
-  ParallelTestConstruct(boost::mutex& lock, const uint64_t* const burn_begin, const uint64_t* const burn_end, TableT* table) : lock_(lock), burn_begin_(burn_begin), burn_end_(burn_end), table_(table){}
-  boost::mutex& lock_;
+  ParallelTestConstruct(std::mutex& lock, const uint64_t* const burn_begin, const uint64_t* const burn_end, TableT* table) : lock_(lock), burn_begin_(burn_begin), burn_end_(burn_end), table_(table){}
+  std::mutex& lock_;
   const uint64_t* const burn_begin_;
   const uint64_t* const burn_end_;
   TableT* table_;
@@ -237,7 +235,7 @@ struct ParallelTestHandler{
     ++nRequests_;
   }
   virtual ~ParallelTestHandler() {
-    boost::unique_lock<boost::mutex> produce_lock(lock_);
+    std::unique_lock<std::mutex> produce_lock(lock_);
     if (error_){
       std::cout << "Error ";
     }
@@ -247,7 +245,7 @@ struct ParallelTestHandler{
     std::cerr << "Meaningless " << twiddle_ << std::endl;
   }
   private:
-    boost::mutex &lock_;
+    std::mutex &lock_;
     double totalTime_;
     std::size_t nRequests_;
     std::size_t nQueries_;
@@ -259,7 +257,7 @@ template<class Queue>
 void ParallelTest(typename Queue::Table* table, const uint64_t *const queries_begin,
                   const uint64_t *const queries_end, std::size_t num_threads,
                   std::size_t tasks_per_thread, std::size_t burn){
-    boost::mutex lock;
+    std::mutex lock;
     ParallelTestConstruct<typename Queue::Table> construct(lock, queries_begin, queries_begin + burn, table);
     ParallelTestRequest<typename Queue::Table> poison(NULL, NULL, NULL);
     {

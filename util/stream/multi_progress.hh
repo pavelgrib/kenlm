@@ -2,8 +2,6 @@
 #ifndef UTIL_STREAM_MULTI_PROGRESS_H
 #define UTIL_STREAM_MULTI_PROGRESS_H
 
-#include <boost/thread/mutex.hpp>
-
 #include <cstddef>
 #include <stdint.h>
 
@@ -36,7 +34,7 @@ class MultiProgress {
 
     uint64_t complete_;
 
-    boost::mutex mutex_;
+    std::mutex mutex_;
 
     // \0 at the end.
     char display_[kWidth + 1];

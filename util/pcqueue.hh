@@ -4,7 +4,6 @@
 #include "util/exception.hh"
 
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/utility.hpp>
 
 #include <cerrno>
@@ -93,7 +92,7 @@ template <class T> class PCQueue {
   void Produce(const T &val) {
     WaitSemaphore(empty_);
     {
-      boost::unique_lock<boost::mutex> produce_lock(produce_at_mutex_);
+      std::unique_lock<std::mutex> produce_lock(produce_at_mutex_);
       try {
         *produce_at_ = val;
       }
@@ -110,7 +109,7 @@ template <class T> class PCQueue {
   T& Consume(T &out) {
     WaitSemaphore(used_);
     {
-      boost::unique_lock<boost::mutex> consume_lock(consume_at_mutex_);
+      std::unique_lock<std::mutex> consume_lock(consume_at_mutex_);
       try {
         out = *consume_at_;
       }
@@ -144,11 +143,11 @@ template <class T> class PCQueue {
 
   // Index for next write in storage_.
   T *produce_at_;
-  boost::mutex produce_at_mutex_;
+  std::mutex produce_at_mutex_;
 
   // Index for next read from storage_.
   T *consume_at_;
-  boost::mutex consume_at_mutex_;
+  std::mutex consume_at_mutex_;
 
 };
 

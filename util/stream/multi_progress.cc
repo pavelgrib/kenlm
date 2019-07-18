@@ -4,6 +4,7 @@
 #include "util/ersatz_progress.hh"
 
 #include <iostream>
+#include <mutex>
 #include <limits>
 
 #include <cstring>
@@ -55,7 +56,7 @@ WorkerProgress MultiProgress::Add() {
     return WorkerProgress(std::numeric_limits<uint64_t>::max(), *this, '\0');
   std::size_t character_index;
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     character_index = character_handout_++;
     if (character_handout_ == sizeof(kDisplayCharacters) - 1)
       character_handout_ = 0;
@@ -78,7 +79,7 @@ void MultiProgress::Milestone(WorkerProgress &worker) {
   worker.next_ = Next(stone, complete_);
   worker.stone_ = stone;
   {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_);
     std::cerr << '\r' << display_ << std::flush;
   }
 }
