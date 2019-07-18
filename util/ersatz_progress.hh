@@ -54,7 +54,6 @@ class ErsatzProgress {
     unsigned char stones_written_;
     std::ostream *out_;
 
-    // noncopyable
     ErsatzProgress(const ErsatzProgress &other);
     ErsatzProgress &operator=(const ErsatzProgress &other);
 };

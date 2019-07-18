@@ -4,6 +4,7 @@
 #include "lm/builder/payload.hh"
 #include "util/scoped.hh"
 
+#include <functional>
 #include <boost/thread/thread.hpp>
 #define BOOST_TEST_MODULE AdjustCounts
 #include <boost/test/unit_test.hpp>

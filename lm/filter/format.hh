@@ -22,7 +22,7 @@ template <class Single> class MultipleOutput {
       std::string tmp;
       for (unsigned int i = 0; i < number; ++i) {
         tmp = prefix;
-        tmp += boost::lexical_cast<std::string>(i);
+        tmp += std::to_string(i);
         files_.push_back(new Single(tmp.c_str()));
       }
     }

@@ -8,7 +8,6 @@
 #include "util/string_piece.hh"
 #include "util/tokenize_piece.hh"
 
-#include <boost/noncopyable.hpp>
 #include <boost/scoped_array.hpp>
 
 #include <fstream>

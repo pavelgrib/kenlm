@@ -8,7 +8,6 @@
 #include "util/string_piece_hash.hh"
 #include "util/tokenize_piece.hh"
 
-#include <boost/noncopyable.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/unordered/unordered_map.hpp>
 #include <boost/unordered/unordered_set.hpp>

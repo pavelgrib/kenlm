@@ -3,7 +3,6 @@
 
 #include "util/string_stream.hh"
 #include <boost/test/unit_test.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <cstddef>
 #include <limits>
@@ -13,7 +12,7 @@ namespace util { namespace {
 template <class T> void TestEqual(const T value) {
   StringStream strme;
   strme << value;
-  BOOST_CHECK_EQUAL(boost::lexical_cast<std::string>(value), strme.str());
+  BOOST_CHECK_EQUAL(std::to_string(value), strme.str());
 }
 
 template <class T> void TestCorners() {

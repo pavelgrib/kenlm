@@ -647,8 +647,6 @@ char *ToString(const void *v, char *to) {
   *to++ = '0';
   *to++ = 'x';
 
-  // Fun fact: gcc/clang boost::lexical_cast on Linux do just "0" while clang on OS X does "0x0"
-  // I happen to prefer 0x0.
   if (!v) {
     *to++ = '0';
     return to;

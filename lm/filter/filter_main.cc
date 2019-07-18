@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 namespace lm {
 namespace {
@@ -187,13 +188,13 @@ int main(int argc, char *argv[]) {
         config.format = lm::FORMAT_COUNT;
 #ifndef NTHREAD
       } else if (!std::strncmp(str, "threads:", 8)) {
-        config.threads = boost::lexical_cast<size_t>(str + 8);
+        config.threads = std::stoul(str + 8);
         if (!config.threads) {
           std::cerr << "Specify at least one thread." << std::endl;
           return 1;
         }
       } else if (!std::strncmp(str, "batch_size:", 11)) {
-        config.batch_size = boost::lexical_cast<size_t>(str + 11);
+        config.batch_size = std::stoul(str + 11);
         if (config.batch_size < 5000) {
           std::cerr << "Batch size must be at least one and should probably be >= 5000" << std::endl;
           if (!config.batch_size) return 1;

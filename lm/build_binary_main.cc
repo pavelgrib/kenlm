@@ -55,7 +55,7 @@ void Usage(const char *name, const char *default_mem) {
   exit(1);
 }
 
-// I could really use boost::lexical_cast right about now.
+// should use std::string s(from); return std::stof(s);
 float ParseFloat(const char *from) {
   char *end;
   float ret = strtod(from, &end);

@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <cassert>
+#include <thread>
 
 namespace util {
 template <class T> class PCQueue;

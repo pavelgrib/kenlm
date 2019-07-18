@@ -20,11 +20,11 @@ std::vector<uint64_t> ParsePruning(const std::vector<std::string> &param, std::s
   // convert to vector of integers
   std::vector<uint64_t> prune_thresholds;
   prune_thresholds.reserve(order);
-  for (std::vector<std::string>::const_iterator it(param.begin()); it != param.end(); ++it) {
+  for (auto const& value: param) {
     try {
-      prune_thresholds.push_back(boost::lexical_cast<uint64_t>(*it));
-    } catch(const boost::bad_lexical_cast &) {
-      UTIL_THROW(util::Exception, "Bad pruning threshold " << *it);
+      prune_thresholds.push_back(std::stoul(value));
+    } catch (const std::invalid_argument &) {
+      UTIL_THROW(util::Exception, "Bad pruning threshold " << value);
     }
   }
 
@@ -57,7 +57,7 @@ lm::builder::Discount ParseDiscountFallback(const std::vector<std::string> &para
   UTIL_THROW_IF(param.empty(), util::Exception, "Fallback discounting enabled, but no discount specified");
   ret.amount[0] = 0.0;
   for (unsigned i = 0; i < 3; ++i) {
-    float discount = boost::lexical_cast<float>(param[i < param.size() ? i : (param.size() - 1)]);
+    float discount = std::stof(param[i < param.size() ? i : (param.size() - 1)]);
     UTIL_THROW_IF(discount < 0.0 || discount > static_cast<float>(i+1), util::Exception, "The discount for count " << (i+1) << " was parsed as " << discount << " which is not in the range [0, " << (i+1) << "].");
     ret.amount[i + 1] = discount;
   }
