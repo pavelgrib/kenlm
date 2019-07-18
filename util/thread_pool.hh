@@ -75,7 +75,8 @@ template <class HandlerT> class ThreadPool {
       for (std::size_t i = 0; i < workers_.size(); ++i) {
         Produce(poison_);
       }
-      for (typename boost::ptr_vector<Worker<Handler> >::iterator i = workers_.begin(); i != workers_.end(); ++i) {
+
+      for (auto i: workers_) {
         i->Join();
       }
     }
@@ -90,7 +91,7 @@ template <class HandlerT> class ThreadPool {
   private:
     PCQueue<Request> in_;
 
-    boost::ptr_vector<Worker<Handler> > workers_;
+    std::vector<std::unique_ptr<Handler>> > workers_;
 
     Request poison_;
 };

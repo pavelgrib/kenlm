@@ -200,7 +200,7 @@ class Chain {
 
     // To complete the loop, call CompleteLoop(), >> kRecycle, or the destructor.
     void CompleteLoop() {
-      threads_.push_back(new Thread(Complete(), kRecycle));
+      threads_.push_back(std::make_unique<Thread>(Complete(), kRecycle));
     }
 
     /**
@@ -235,11 +235,11 @@ class Chain {
 
     scoped_malloc memory_;
 
-    boost::ptr_vector<PCQueue<Block> > queues_;
+    std::vector<std::unique_ptr<PCQueue<Block>> > queues_;
 
     bool complete_called_;
 
-    boost::ptr_vector<Thread> threads_;
+    std::vector<std::unique_ptr<Thread>> threads_;
 
     MultiProgress progress_;
 };

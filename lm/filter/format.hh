@@ -4,16 +4,13 @@
 #include "lm/filter/arpa_io.hh"
 #include "lm/filter/count_io.hh"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <iosfwd>
 
 namespace lm {
 
 template <class Single> class MultipleOutput {
   private:
-    typedef boost::ptr_vector<Single> Singles;
+    typedef std::vector<std::unique_ptr<Single>> Singles;
     typedef typename Singles::iterator SinglesIterator;
 
   public:
@@ -54,22 +51,22 @@ class MultipleARPAOutput : public MultipleOutput<ARPAOutput> {
     MultipleARPAOutput(const char *prefix, size_t number) : MultipleOutput<ARPAOutput>(prefix, number) {}
 
     void ReserveForCounts(std::streampos reserve) {
-      for (boost::ptr_vector<ARPAOutput>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
         i->ReserveForCounts(reserve);
     }
 
     void BeginLength(unsigned int length) {
-      for (boost::ptr_vector<ARPAOutput>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
         i->BeginLength(length);
     }
 
     void EndLength(unsigned int length) {
-      for (boost::ptr_vector<ARPAOutput>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
         i->EndLength(length);
     }
 
     void Finish() {
-      for (boost::ptr_vector<ARPAOutput>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
         i->Finish();
     }
 };

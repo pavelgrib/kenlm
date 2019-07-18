@@ -5,7 +5,6 @@
 #include "lm/common/model_buffer.hh"
 #include "util/file.hh"
 
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/utility.hpp>
 
 namespace util { namespace stream { class Chains; class ChainPositions; } }
@@ -67,7 +66,7 @@ class Output {
 
     ModelBuffer buffer_;
 
-    boost::ptr_vector<OutputHook> outputs_[NUMBER_OF_HOOKS];
+    std::vector<std::unique_ptr<OutputHook>> outputs_[NUMBER_OF_HOOKS];
     HeaderInfo header_;
 };
 

@@ -66,7 +66,7 @@ class Chains : public util::FixedArray<util::stream::Chain> {
     }
 
   private:
-    boost::ptr_vector<util::stream::Thread> threads_;
+    std::vector<std::unique_ptr<util::stream::Thread>> threads_;
 
     Chains(const Chains &);
     void operator=(const Chains &);
