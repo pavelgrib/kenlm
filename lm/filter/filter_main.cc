@@ -120,7 +120,7 @@ template <class Format> void DispatchFilterModes(const Config &config, std::istr
       RunContextFilter<Format, Filter, MultipleOutputBuffer, typename Format::Multiple>(config, in_lm, Filter(substrings), out);
     } else {
       typedef vocab::Multiple Filter;
-      boost::unordered_map<std::string, std::vector<unsigned int> > words;
+      std::unordered_map<std::string, std::vector<unsigned int> > words;
       typename Format::Multiple out(out_name, vocab::ReadMultiple(in_vocab, words));
       RunContextFilter<Format, Filter, MultipleOutputBuffer, typename Format::Multiple>(config, in_lm, Filter(words), out);
     }

@@ -74,6 +74,9 @@
         "queue": "cpp",
         "stack": "cpp",
         "numeric": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "unordered_map": "cpp",
+        "__hash_table": "cpp",
+        "unordered_set": "cpp"
     }
 }

@@ -9,8 +9,8 @@
 #include "util/tokenize_piece.hh"
 
 #include <boost/range/iterator_range.hpp>
-#include <boost/unordered/unordered_map.hpp>
-#include <boost/unordered/unordered_set.hpp>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <string>
 #include <vector>
@@ -18,10 +18,10 @@
 namespace lm {
 namespace vocab {
 
-void ReadSingle(std::istream &in, boost::unordered_set<std::string> &out);
+void ReadSingle(std::istream &in, std::unordered_set<std::string> &out);
 
 // Read one sentence vocabulary per line.  Return the number of sentences.
-unsigned int ReadMultiple(std::istream &in, boost::unordered_map<std::string, std::vector<unsigned int> > &out);
+unsigned int ReadMultiple(std::istream &in, std::unordered_map<std::string, std::vector<unsigned int> > &out);
 
 /* Is this a special tag like <s> or <UNK>?  This actually includes anything
  * surrounded with < and >, which most tokenizers separate for real words, so
@@ -35,7 +35,7 @@ inline bool IsTag(const StringPiece &value) {
 
 class Single {
   public:
-    typedef boost::unordered_set<std::string> Words;
+    typedef std::unordered_set<std::string> Words;
 
     explicit Single(const Words &vocab) : vocab_(vocab) {}
 
@@ -53,7 +53,7 @@ class Single {
 
 class Union {
   public:
-    typedef boost::unordered_map<std::string, std::vector<unsigned int> > Words;
+    typedef std::unordered_map<std::string, std::vector<unsigned int> > Words;
 
     explicit Union(const Words &vocabs) : vocabs_(vocabs) {}
 
@@ -77,7 +77,7 @@ class Union {
 
 class Multiple {
   public:
-    typedef boost::unordered_map<std::string, std::vector<unsigned int> > Words;
+    typedef std::unordered_map<std::string, std::vector<unsigned int> > Words;
 
     Multiple(const Words &vocabs) : vocabs_(vocabs) {}
 

@@ -34,7 +34,7 @@
 #include "util/tokenize_piece.hh"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 #include <cmath>
 #include <limits>
@@ -176,7 +176,7 @@ class DispatchContext {
 };
 
 // Map from n-gram hash to contexts in the tuning data.  TODO: probing hash table?
-typedef boost::unordered_map<uint64_t, DispatchContext> ContextMap;
+typedef std::unordered_map<uint64_t, DispatchContext> ContextMap;
 
 // Handle all the orders of a single model at once.
 class JointOrderCallback {
@@ -288,7 +288,7 @@ class IdentifyTuning : public EnumerateVocab {
 
     // Apply ids as they come out of MergeVocab if they match.
     void Add(WordIndex id, const StringPiece &str) {
-      boost::unordered_map<uint64_t, std::vector<std::size_t> >::iterator i = words_.find(util::MurmurHashNative(str.data(), str.size()));
+      std::unordered_map<uint64_t, std::vector<std::size_t> >::iterator i = words_.find(util::MurmurHashNative(str.data(), str.size()));
       if (i != words_.end()) {
         for (std::vector<std::size_t>::iterator j = i->second.begin(); j != i->second.end(); ++j) {
           indices_[*j] = id;
@@ -307,7 +307,7 @@ class IdentifyTuning : public EnumerateVocab {
     std::vector<WordIndex> &indices_;
 
     // map from hash(string) to offsets in indices_.
-    boost::unordered_map<uint64_t, std::vector<std::size_t> > words_;
+    std::unordered_map<uint64_t, std::vector<std::size_t> > words_;
 };
 
 } // namespace
