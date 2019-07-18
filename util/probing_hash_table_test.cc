@@ -5,7 +5,6 @@
 
 #define BOOST_TEST_MODULE ProbingHashTableTest
 #include <boost/test/unit_test.hpp>
-#include <boost/scoped_array.hpp>
 #include <boost/functional/hash.hpp>
 #include <cstdio>
 #include <cstdlib>
@@ -38,7 +37,7 @@ typedef ProbingHashTable<Entry, boost::hash<unsigned char> > Table;
 
 BOOST_AUTO_TEST_CASE(simple) {
   size_t size = Table::Size(10, 1.2);
-  boost::scoped_array<char> mem(new char[size]);
+  std::unique_ptr<char[]> mem(new char[size]);
   memset(mem.get(), 0, size);
 
   Table table(mem.get(), size);

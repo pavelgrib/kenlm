@@ -3,7 +3,6 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/scoped_array.hpp>
 #include <boost/unordered_map.hpp>
 
 #define BOOST_TEST_MODULE SortedUniformTest

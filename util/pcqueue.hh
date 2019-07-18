@@ -4,7 +4,6 @@
 #include "util/exception.hh"
 
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
-#include <boost/scoped_array.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/utility.hpp>
 
@@ -139,7 +138,7 @@ template <class T> class PCQueue {
   // Number of occupied spaces in storage_.
   Semaphore used_;
 
-  boost::scoped_array<T> storage_;
+  std::unique_ptr<T []> storage_;
 
   T *const end_;
 

@@ -96,7 +96,6 @@ class scoped_malloc : public scoped_c<void, std::free> {
     void call_realloc(std::size_t to);
 };
 
-/* scoped_array using delete[] */
 struct scoped_delete_array_forward {
   template <class T> static void Close(T *p) { delete [] p; }
 };
