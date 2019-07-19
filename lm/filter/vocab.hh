@@ -72,7 +72,7 @@ class Union {
   private:
     const Words &vocabs_;
 
-    std::vector<boost::iterator_range<const unsigned int*> > sets_;
+    std::vector<boost::iterator_range<const unsigned int*>> sets_;
 };
 
 class Multiple {

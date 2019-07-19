@@ -1,9 +1,7 @@
 #include "util/sorted_uniform.hh"
 
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/variate_generator.hpp>
 #include <unordered_map>
+#include <random>
 
 #define BOOST_TEST_MODULE SortedUniformTest
 #include <boost/test/unit_test.hpp>
@@ -65,18 +63,16 @@ BOOST_AUTO_TEST_CASE(empty) {
 
 template <class Key> void RandomTest(Key upper, size_t entries, size_t queries) {
   typedef unsigned char Value;
-  boost::mt19937 rng;
-  boost::uniform_int<Key> range_key(0, upper);
-  boost::uniform_int<Value> range_value(0, 255);
-  boost::variate_generator<boost::mt19937&, boost::uniform_int<Key> > gen_key(rng, range_key);
-  boost::variate_generator<boost::mt19937&, boost::uniform_int<unsigned char> > gen_value(rng, range_value);
+  std::mt19937 rng;
+  std::uniform_int_distribution<Key> gen_key(0, upper);
+  std::uniform_int_distribution<Value> gen_value(0, 255);
 
   typedef Entry<Key, Value> Ent;
   std::vector<Ent> backing;
   std::unordered_map<Key, unsigned char> reference;
   Ent ent;
   for (size_t i = 0; i < entries; ++i) {
-    Key key = gen_key();
+    Key key = gen_key(rng);
     unsigned char value = gen_value();
     if (reference.insert(std::make_pair(key, value)).second) {
       ent.key = key;

@@ -1,4 +1,5 @@
 #include "util/multi_intersection.hh"
+#include <optional>
 
 #define BOOST_TEST_MODULE MultiIntersectionTest
 #include <boost/test/unit_test.hpp>
@@ -21,7 +22,7 @@ BOOST_AUTO_TEST_CASE(Single) {
   std::vector<boost::iterator_range<std::vector<unsigned int>::const_iterator> > sets;
   sets.push_back(nums);
 
-  boost::optional<unsigned int> ret(FirstIntersection(sets));
+  std::optional<unsigned int> ret(FirstIntersection(sets));
 
   BOOST_REQUIRE(ret);
   BOOST_CHECK_EQUAL(static_cast<unsigned int>(1), *ret);
@@ -54,7 +55,7 @@ BOOST_AUTO_TEST_CASE(MultiOne) {
   sets.push_back(RangeFromArray(nums1));
   sets.push_back(RangeFromArray(nums2));
 
-  boost::optional<unsigned int> ret(FirstIntersection(sets));
+  std::optional<unsigned int> ret(FirstIntersection(sets));
   BOOST_REQUIRE(ret);
   BOOST_CHECK_EQUAL(static_cast<unsigned int>(17), *ret);
 }

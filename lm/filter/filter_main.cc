@@ -9,8 +9,6 @@
 #include "util/exception.hh"
 #include "util/file_piece.hh"
 
-#include <boost/ptr_container/ptr_vector.hpp>
-
 #include <cstring>
 #include <fstream>
 #include <iostream>

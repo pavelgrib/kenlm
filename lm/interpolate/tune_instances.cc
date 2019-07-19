@@ -33,7 +33,7 @@
 #include "util/stream/sort.hh"
 #include "util/tokenize_piece.hh"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <unordered_map>
 
 #include <cmath>
@@ -345,7 +345,7 @@ class ExtensionsFirstIteration {
   private:
     class ApplyBackoffs {
       public:
-        explicit ApplyBackoffs(boost::shared_ptr<std::vector<Matrix> > backoffs_by_instance)
+        explicit ApplyBackoffs(std::shared_ptr<std::vector<Matrix> > backoffs_by_instance)
           : backoffs_by_instance_(backoffs_by_instance) {}
 
         void Run(const util::stream::ChainPosition &position) {
@@ -363,14 +363,14 @@ class ExtensionsFirstIteration {
         }
 
       private:
-        boost::shared_ptr<std::vector<Matrix> > backoffs_by_instance_;
+        std::shared_ptr<std::vector<Matrix> > backoffs_by_instance_;
     };
 
     // Array of complete backoff matrices by instance.
     // Each matrix is by model, then by order.
     // Would have liked to use a tensor but it's not that well supported.
     // This is a shared pointer so that ApplyBackoffs can run after this class is gone.
-    boost::shared_ptr<std::vector<Matrix> > backoffs_by_instance_;
+    std::shared_ptr<std::vector<Matrix> > backoffs_by_instance_;
 
     // This sorts and stores all the InitialExtensions.
     util::stream::Sort<InitialExtensionCompare> sort_;

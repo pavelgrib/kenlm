@@ -6,6 +6,7 @@
 #include "util/stream/chain.hh"
 #include "util/stream/stream.hh"
 
+#include <functional>
 #include <cstddef>
 #include <new>
 
@@ -47,7 +48,7 @@ class Chains : public util::FixedArray<util::stream::Chain> {
       return *this;
     }
 
-    template <class Worker> typename CheckForRun<Worker>::type &operator>>(const boost::reference_wrapper<Worker> &worker) {
+    template <class Worker> typename CheckForRun<Worker>::type &operator>>(const std::reference_wrapper<Worker> &worker) {
       threads_.push_back(new util::stream::Thread(ChainPositions(*this), worker));
       return *this;
     }

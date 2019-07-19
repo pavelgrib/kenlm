@@ -6,7 +6,7 @@
 #include "util/stream/multi_progress.hh"
 #include "util/scoped.hh"
 
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <functional>
 #include <boost/thread/thread.hpp>
 
 #include <cstddef>
@@ -190,7 +190,7 @@ class Chain {
    *
    * @see Thread::operator()()
    */
-    template <class Worker> typename CheckForRun<Worker>::type &operator>>(const boost::reference_wrapper<Worker> &worker) {
+    template <class Worker> typename CheckForRun<Worker>::type &operator>>(const std::reference_wrapper<Worker> &worker) {
       assert(!complete_called_);
       threads_.push_back(new Thread(Add(), worker));
       return *this;

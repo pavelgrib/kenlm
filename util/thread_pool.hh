@@ -3,8 +3,7 @@
 
 #include "util/pcqueue.hh"
 
-#include <boost/ptr_container/ptr_vector.hpp>
-#include <boost/optional.hpp>
+#include <optional>
 #include <boost/thread.hpp>
 
 #include <iostream>
@@ -50,7 +49,7 @@ template <class HandlerT> class Worker {
   private:
     PCQueue<Request> &in_;
 
-    boost::optional<Handler> handler_;
+    std::optional<Handler> handler_;
 
     const Request poison_;
 
