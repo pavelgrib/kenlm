@@ -51,23 +51,27 @@ class MultipleARPAOutput : public MultipleOutput<ARPAOutput> {
     MultipleARPAOutput(const char *prefix, size_t number) : MultipleOutput<ARPAOutput>(prefix, number) {}
 
     void ReserveForCounts(std::streampos reserve) {
-      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (auto &i: files_) {
         i->ReserveForCounts(reserve);
+      }
     }
 
     void BeginLength(unsigned int length) {
-      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (auto &i: files_) {
         i->BeginLength(length);
+      }
     }
 
     void EndLength(unsigned int length) {
-      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (auto &i: files_) {
         i->EndLength(length);
+      }
     }
 
     void Finish() {
-      for (std::vector<std::unique_ptr<ARPAOutput>>::iterator i = files_.begin(); i != files_.end(); ++i)
+      for (auto &i: files_) {
         i->Finish();
+      }
     }
 };
 

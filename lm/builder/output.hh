@@ -38,7 +38,7 @@ class Output {
   public:
 
     Output(const Output&) = delete;
-    Output& opereator=(const Output&) = delete;
+    // Output& opereator=(const Output&) = delete;
 
     Output(StringPiece file_base, bool keep_buffer, bool output_q);
 

@@ -34,12 +34,12 @@ void Output::SinkProbs(util::stream::Chains &chains) {
 }
 
 void Output::Apply(HookType hook_type, util::stream::Chains &chains) {
-  for (std::vector<std::unique_ptr<OutputHook>> entry = outputs_[hook_type].begin(); entry != outputs_[hook_type].end(); ++entry) {
+  // for (std::vector<std::unique_ptr<OutputHook>> entry = outputs_[hook_type].begin(); entry != outputs_[hook_type].end(); ++entry) {
     // entry->Sink(header_, VocabFile(), chains);
-  }
-
-  for (auto entry: outputs_[hook_type]) {
-
+  // }
+  
+  for (auto &entry: outputs_[hook_type]) {
+    entry->Sink(header_, VocabFile(), chains);
   }
 }
 
