@@ -38,9 +38,14 @@ template <class V> class Print {
       util::scoped_fd fd(to_);
       util::FileStream out(to_);
       NGramStreams<BuildingPayload> streams(chains);
-      for (NGramStream<BuildingPayload> *s = streams.begin(); s != streams.end(); ++s) {
+
+      for (auto *s: streams) {
         DumpStream(*s, out);
       }
+
+      // for (NGramStream<BuildingPayload> *s = streams.begin(); s != streams.end(); ++s) {
+      //   DumpStream(*s, out);
+      // }
     }
 
     void Run(const util::stream::ChainPosition &position) {

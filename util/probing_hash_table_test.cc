@@ -5,7 +5,7 @@
 
 #define BOOST_TEST_MODULE ProbingHashTableTest
 #include <boost/test/unit_test.hpp>
-#include <boost/functional/hash.hpp>
+#include <functional>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -33,7 +33,7 @@ struct Entry {
   uint64_t value;
 };
 
-typedef ProbingHashTable<Entry, boost::hash<unsigned char> > Table;
+typedef ProbingHashTable<Entry, std::hash<unsigned char> > Table;
 
 BOOST_AUTO_TEST_CASE(simple) {
   size_t size = Table::Size(10, 1.2);

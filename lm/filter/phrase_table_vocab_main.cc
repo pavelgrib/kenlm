@@ -58,19 +58,22 @@ class TargetWords {
       for (util::TokenIter<util::SingleCharacter, true> i(target, ' '); i; ++i) {
         interns_.push_back(intern_.Add(*i));
       }
-      for (std::vector<unsigned int>::const_iterator i(sentences.begin()); i != sentences.end(); ++i) {
-        std::unordered_set<const char *> &vocab = vocab_[*i];
-        for (std::vector<const char *>::const_iterator j = interns_.begin(); j != interns_.end(); ++j) {
-          vocab.insert(*j);
+      
+      for (auto i(sentences.begin()); i != sentences.end(); ++i) {
+        auto &vocab = vocab_[*i];
+
+        for (auto j: interns_) {
+          vocab.insert(j);
         }
       }
     }
 
     void Print() const {
       util::FileStream out(1);
-      for (std::vector<std::unordered_set<const char *> >::const_iterator i = vocab_.begin(); i != vocab_.end(); ++i) {
-        for (std::unordered_set<const char *>::const_iterator j = i->begin(); j != i->end(); ++j) {
-          out << *j << ' ';
+
+      for (auto &set_of_words: vocab_) {
+        for (auto word: set_of_words) {
+          out << word << ' ';
         }
         out << '\n';
       }

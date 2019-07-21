@@ -11,7 +11,8 @@
 namespace util {
 
 namespace detail {
-template <class Range> struct RangeLessBySize : public std::binary_function<const Range &, const Range &, bool> {
+template <class Range>
+struct RangeLessBySize : public std::binary_function<const Range &, const Range &, bool> {
   bool operator()(const Range &left, const Range &right) const {
     return left.size() < right.size();
   }
@@ -24,13 +25,18 @@ template <class Range> struct RangeLessBySize : public std::binary_function<cons
  * since the intersection over null is the universe and this function does not
  * know the universe.
  */
-template <class Iterator, class Less> std::optional<typename std::iterator_traits<Iterator>::value_type> FirstIntersectionSorted(std::vector<boost::iterator_range<Iterator> > &sets, const Less &less = std::less<typename std::iterator_traits<Iterator>::value_type>()) {
-  typedef std::vector<boost::iterator_range<Iterator> > Sets;
+template <class Iterator, class Less>
+std::optional<typename std::iterator_traits<Iterator>::value_type>
+FirstIntersectionSorted(std::vector<boost::iterator_range<Iterator>> &sets, const Less &less = std::less<typename std::iterator_traits<Iterator>::value_type>()) {
+  typedef std::vector<boost::iterator_range<Iterator>> Sets;
   typedef typename std::iterator_traits<Iterator>::value_type Value;
 
   assert(!sets.empty());
 
-  if (sets.front().empty()) return std::optional<Value>();
+  if (sets.front().empty()) return {
+    std::optional<Value>();
+  }
+
   // Possibly suboptimal to copy for general Value; makes unsigned int go slightly faster.
   Value highest(sets.front().front());
   for (typename Sets::iterator i(sets.begin()); i != sets.end(); ) {
@@ -49,7 +55,8 @@ template <class Iterator, class Less> std::optional<typename std::iterator_trait
 
 } // namespace detail
 
-template <class Iterator, class Less> std::optional<typename std::iterator_traits<Iterator>::value_type> FirstIntersection(std::vector<boost::iterator_range<Iterator> > &sets, const Less less) {
+template <class Iterator, class Less>
+std::optional<typename std::iterator_traits<Iterator>::value_type> FirstIntersection(std::vector<boost::iterator_range<Iterator> > &sets, const Less less) {
   assert(!sets.empty());
 
   std::sort(sets.begin(), sets.end(), detail::RangeLessBySize<boost::iterator_range<Iterator> >());
@@ -60,7 +67,8 @@ template <class Iterator> std::optional<typename std::iterator_traits<Iterator>:
   return FirstIntersection(sets, std::less<typename std::iterator_traits<Iterator>::value_type>());
 }
 
-template <class Iterator, class Output, class Less> void AllIntersection(std::vector<boost::iterator_range<Iterator> > &sets, Output &out, const Less less) {
+template <class Iterator, class Output, class Less>
+void AllIntersection(std::vector<boost::iterator_range<Iterator> > &sets, Output &out, const Less less) {
   typedef typename std::iterator_traits<Iterator>::value_type Value;
   assert(!sets.empty());
 
@@ -71,7 +79,8 @@ template <class Iterator, class Output, class Less> void AllIntersection(std::ve
   }
 }
 
-template <class Iterator, class Output> void AllIntersection(std::vector<boost::iterator_range<Iterator> > &sets, Output &out) {
+template <class Iterator, class Output>
+void AllIntersection(std::vector<boost::iterator_range<Iterator> > &sets, Output &out) {
   AllIntersection(sets, out, std::less<typename std::iterator_traits<Iterator>::value_type>());
 }
 

@@ -7,6 +7,7 @@
 #include "util/usage.hh"
 
 #include <iostream>
+#include "util/popl.hpp"
 
 #include <boost/program_options.hpp>
 #include <boost/version.hpp>
@@ -69,7 +70,8 @@ lm::builder::Discount ParseDiscountFallback(const std::vector<std::string> &para
 int main(int argc, char *argv[]) {
   try {
     namespace po = boost::program_options;
-    po::options_description options("Language model building options");
+    // po::options_description options("Language model building options");
+    popl::OptionParser options("Language model building options");
     lm::builder::PipelineConfig pipeline;
 
     std::string text, intermediate, arpa;
@@ -81,102 +83,136 @@ int main(int argc, char *argv[]) {
     discount_fallback_default.push_back("1.5");
     bool verbose_header;
 
-    options.add_options()
-      ("help,h", po::bool_switch(), "Show this help message")
-      ("order,o", po::value<std::size_t>(&pipeline.order)
-#if BOOST_VERSION >= 104200
-         ->required()
-#endif
-         , "Order of the model")
-      ("interpolate_unigrams", po::value<bool>(&pipeline.initial_probs.interpolate_unigrams)->default_value(true)->implicit_value(true), "Interpolate the unigrams (default) as opposed to giving lots of mass to <unk> like SRI.  If you want SRI's behavior with a large <unk> and the old lmplz default, use --interpolate_unigrams 0.")
-      ("skip_symbols", po::bool_switch(), "Treat <s>, </s>, and <unk> as whitespace instead of throwing an exception")
-      ("temp_prefix,T", po::value<std::string>(&pipeline.sort.temp_prefix)->default_value(util::DefaultTempDirectory()), "Temporary file prefix")
-      ("memory,S", lm:: SizeOption(pipeline.sort.total_memory, util::GuessPhysicalMemory() ? "80%" : "1G"), "Sorting memory")
-      ("minimum_block", lm::SizeOption(pipeline.minimum_block, "8K"), "Minimum block size to allow")
-      ("sort_block", lm::SizeOption(pipeline.sort.buffer_size, "64M"), "Size of IO operations for sort (determines arity)")
-      ("block_count", po::value<std::size_t>(&pipeline.block_count)->default_value(2), "Block count (per order)")
-      ("vocab_estimate", po::value<lm::WordIndex>(&pipeline.vocab_estimate)->default_value(1000000), "Assume this vocabulary size for purposes of calculating memory in step 1 (corpus count) and pre-sizing the hash table")
-      ("vocab_pad", po::value<uint64_t>(&pipeline.vocab_size_for_unk)->default_value(0), "If the vocabulary is smaller than this value, pad with <unk> to reach this size. Requires --interpolate_unigrams")
-      ("verbose_header", po::bool_switch(&verbose_header), "Add a verbose header to the ARPA file that includes information such as token count, smoothing type, etc.")
-      ("text", po::value<std::string>(&text), "Read text from a file instead of stdin")
-      ("arpa", po::value<std::string>(&arpa), "Write ARPA to a file instead of stdout")
-      ("intermediate", po::value<std::string>(&intermediate), "Write ngrams to intermediate files.  Turns off ARPA output (which can be reactivated by --arpa file).  Forces --renumber on.")
-      ("renumber", po::bool_switch(&pipeline.renumber_vocabulary), "Renumber the vocabulary identifiers so that they are monotone with the hash of each string.  This is consistent with the ordering used by the trie data structure.")
-      ("collapse_values", po::bool_switch(&pipeline.output_q), "Collapse probability and backoff into a single value, q that yields the same sentence-level probabilities.  See http://kheafield.com/professional/edinburgh/rest_paper.pdf for more details, including a proof.")
-      ("prune", po::value<std::vector<std::string> >(&pruning)->multitoken(), "Prune n-grams with count less than or equal to the given threshold.  Specify one value for each order i.e. 0 0 1 to prune singleton trigrams and above.  The sequence of values must be non-decreasing and the last value applies to any remaining orders. Default is to not prune, which is equivalent to --prune 0.")
-      ("limit_vocab_file", po::value<std::string>(&pipeline.prune_vocab_file)->default_value(""), "Read allowed vocabulary separated by whitespace. N-grams that contain vocabulary items not in this list will be pruned. Can be combined with --prune arg")
-      ("discount_fallback", po::value<std::vector<std::string> >(&discount_fallback)->multitoken()->implicit_value(discount_fallback_default, "0.5 1 1.5"), "The closed-form estimate for Kneser-Ney discounts does not work without singletons or doubletons.  It can also fail if these values are out of range.  This option falls back to user-specified discounts when the closed-form estimate fails.  Note that this option is generally a bad idea: you should deduplicate your corpus instead.  However, class-based models need custom discounts because they lack singleton unigrams.  Provide up to three discounts (for adjusted counts 1, 2, and 3+), which will be applied to all orders where the closed-form estimates fail.");
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, options), vm);
+    auto help_option = options.add<popl::Switch>("h", "help", "Show this help message");
+    auto order_option = options.add<popl::Switch>("o", "order", "Order of the model");
+    auto iu_option = options.add<popl::Value<bool>>("", "interpolate_unigrams", "Interpolate the unigrams (default) as opposed to giving lots of mass to <unk> like SRI.  If you want SRI's behavior with a large <unk> and the old lmplz default, use --interpolate_unigrams 0.", true, &pipeline.initial_probs.interpolate_unigrams);
+    auto ss_option = options.add<popl::Switch>("", "skip_symbols", "Treat <s>, </s>, and <unk> as whitespace instead of throwing an exception");
+    auto tp_option = options.add<popl::Value<std::string>>("T", "temp_prefix", "Temporary file prefix", util::DefaultTempDirectory(), &pipeline.sort.temp_prefix);
+    auto sm_option = options.add<popl::Value<std::string>>("S", "memory", "Sorting memory", util::GuessPhysicalMemory() ? "80%" : "1G", pipeline.sort.total_memory);
+    auto mb_option = options.add<popl::Value<std::string>>("", "minimum_block", "Minimum block size to allow", "8K", pipeline.minimum_block);
+    auto sb_option = options.add<popl::Value<std::string>>("", "sort_block", "Size of IO operations for sort (determines arity)", "64M", pipeline.sort.buffer_size);
+    auto bc_option = options.add<popl::Value<size_t>>("", "block_count", "Block count (per order)", 2, &pipeline.block_count);
+    auto be_option = options.add<popl::Value<lm::WordIndex>>("", "vocab_estimate", "Assume this vocabulary size for purposes of calculating memory in step 1 (corpus count) and pre-sizing the hash table", 1000000, pipeline.vocab_estimate);
+    auto vp_option = options.add<popl::Value<uint64_t>>("", "vocab_pad", "If the vocabulary is smaller than this value, pad with <unk> to reach this size. Requires --interpolate_unigrams", 0, &pipeline.vocab_size_for_unk);
+    auto vh_option = options.add<popl::Switch>("", "verbose_header", "Add a verbose header to the ARPA file that includes information such as token count, smoothing type, etc.", &verbose_header);
+    auto text_option = options.add<popl::Value<std::string>>("", "text", "Read text from a file instead of stdin", &text);
+    auto arpa_option = options.add<popl::Value<std::string>>("", "arpa", "Write ARPA to a file instead of stdout", &arpa);
+    auto interm_option = options.add<popl::Value<std::string>>("", "intermediate", "Write ngrams to intermediate files.  Turns off ARPA output (which can be reactivated by --arpa file).  Forces --renumber on.", &intermediate);
+    auto renumber_option = options.add<popl::Switch>("", "renumber", "Renumber the vocabulary identifiers so that they are monotone with the hash of each string.  This is consistent with the ordering used by the trie data structure.", &pipeline.renumber_vocabulary);
+    auto cv_option = options.add<popl::Switch>("", "collapse_values", "Collapse probability and backoff into a single value, q that yields the same sentence-level probabilities.  See http://kheafield.com/professional/edinburgh/rest_paper.pdf for more details, including a proof.", &pipeline.output_q);
+    auto prune_option = options.add<popl::Value<std::string>>("", "prune", "Prune n-grams with count less than or equal to the given threshold.  Specify one value for each order i.e. 0 0 1 to prune singleton trigrams and above.  The sequence of values must be non-decreasing and the last value applies to any remaining orders. Default is to not prune, which is equivalent to --prune 0.", &pruning);
+    auto lvf_option = options.add<popl::Value<std::string>>("", "limit_vocab_file", "Read allowed vocabulary separated by whitespace. N-grams that contain vocabulary items not in this list will be pruned. Can be combined with --prune arg", "", &pipeline.prune_vocab_file);
+    auto df_option = options.add<popl::Implicit<std::string>>("", "discount_fallback", "The closed-form estimate for Kneser-Ney discounts does not work without singletons or doubletons.  It can also fail if these values are out of three discounts (for adjusted counts 1, 2, and 3+), which will be applied to all orders where the closed-form estimates fail.", "0.5 1 1.5", &discount_fallback);
 
-    if (argc == 1 || vm["help"].as<bool>()) {
-      std::cerr <<
-        "Builds unpruned language models with modified Kneser-Ney smoothing.\n\n"
-        "Please cite:\n"
-        "@inproceedings{Heafield-estimate,\n"
-        "  author = {Kenneth Heafield and Ivan Pouzyrevsky and Jonathan H. Clark and Philipp Koehn},\n"
-        "  title = {Scalable Modified {Kneser-Ney} Language Model Estimation},\n"
-        "  year = {2013},\n"
-        "  month = {8},\n"
-        "  booktitle = {Proceedings of the 51st Annual Meeting of the Association for Computational Linguistics},\n"
-        "  address = {Sofia, Bulgaria},\n"
-        "  url = {http://kheafield.com/professional/edinburgh/estimate\\_paper.pdf},\n"
-        "}\n\n"
-        "Provide the corpus on stdin.  The ARPA file will be written to stdout.  Order of\n"
-        "the model (-o) is the only mandatory option.  As this is an on-disk program,\n"
-        "setting the temporary file location (-T) and sorting memory (-S) is recommended.\n\n"
-        "Memory sizes are specified like GNU sort: a number followed by a unit character.\n"
-        "Valid units are \% for percentage of memory (supported platforms only) and (in\n"
-        "increasing powers of 1024): b, K, M, G, T, P, E, Z, Y.  Default is K (*1024).\n";
-      uint64_t mem = util::GuessPhysicalMemory();
-      if (mem) {
-        std::cerr << "This machine has " << mem << " bytes of memory.\n\n";
-      } else {
-        std::cerr << "Unable to determine the amount of memory on this machine.\n\n";
+
+    // options.add_options()
+      // ("help,h", po::bool_switch(), "Show this help message")
+      // ("order,o", po::value<std::size_t>(&pipeline.order)->required(), "Order of the model")
+      // ("interpolate_unigrams", po::value<bool>(&pipeline.initial_probs.interpolate_unigrams)->default_value(true)->implicit_value(true), "Interpolate the unigrams (default) as opposed to giving lots of mass to <unk> like SRI.  If you want SRI's behavior with a large <unk> and the old lmplz default, use --interpolate_unigrams 0.")
+      // ("skip_symbols", po::bool_switch(), "Treat <s>, </s>, and <unk> as whitespace instead of throwing an exception")
+      // ("temp_prefix,T", po::value<std::string>(&pipeline.sort.temp_prefix)->default_value(util::DefaultTempDirectory()), "Temporary file prefix")
+      // ("memory,S", lm:: SizeOption(pipeline.sort.total_memory, util::GuessPhysicalMemory() ? "80%" : "1G"), "Sorting memory")
+      // ("minimum_block", lm::SizeOption(pipeline.minimum_block, "8K"), "Minimum block size to allow")
+      // ("sort_block", lm::SizeOption(pipeline.sort.buffer_size, "64M"), "Size of IO operations for sort (determines arity)")
+      // ("block_count", po::value<std::size_t>(&pipeline.block_count)->default_value(2), "Block count (per order)")
+      // ("vocab_estimate", po::value<lm::WordIndex>(&pipeline.vocab_estimate)->default_value(1000000), "Assume this vocabulary size for purposes of calculating memory in step 1 (corpus count) and pre-sizing the hash table")
+      // ("vocab_pad", po::value<uint64_t>(&pipeline.vocab_size_for_unk)->default_value(0), "If the vocabulary is smaller than this value, pad with <unk> to reach this size. Requires --interpolate_unigrams")
+      // ("verbose_header", po::bool_switch(&verbose_header), "Add a verbose header to the ARPA file that includes information such as token count, smoothing type, etc.")
+      // ("text", po::value<std::string>(&text), "Read text from a file instead of stdin")
+      // ("arpa", po::value<std::string>(&arpa), "Write ARPA to a file instead of stdout")
+      // ("intermediate", po::value<std::string>(&intermediate), "Write ngrams to intermediate files.  Turns off ARPA output (which can be reactivated by --arpa file).  Forces --renumber on.")
+      // ("renumber", po::bool_switch(&pipeline.renumber_vocabulary), "Renumber the vocabulary identifiers so that they are monotone with the hash of each string.  This is consistent with the ordering used by the trie data structure.")
+      // ("collapse_values", po::bool_switch(&pipeline.output_q), "Collapse probability and backoff into a single value, q that yields the same sentence-level probabilities.  See http://kheafield.com/professional/edinburgh/rest_paper.pdf for more details, including a proof.")
+      // ("prune", po::value<std::vector<std::string>>(&pruning)->multitoken(), "Prune n-grams with count less than or equal to the given threshold.  Specify one value for each order i.e. 0 0 1 to prune singleton trigrams and above.  The sequence of values must be non-decreasing and the last value applies to any remaining orders. Default is to not prune, which is equivalent to --prune 0.")
+      // ("limit_vocab_file", po::value<std::string>(&pipeline.prune_vocab_file)->default_value(""), "Read allowed vocabulary separated by whitespace. N-grams that contain vocabulary items not in this list will be pruned. Can be combined with --prune arg")
+      // ("discount_fallback", po::value<std::vector<std::string> >(&discount_fallback)->multitoken()->implicit_value(discount_fallback_default, "0.5 1 1.5"), "The closed-form estimate for Kneser-Ney discounts does not work without singletons or doubletons.  It can also fail if these values are out of range.  This option falls back to user-specified discounts when the closed-form estimate fails.  Note that this option is generally a bad idea: you should deduplicate your corpus instead.  However, class-based models need custom discounts because they lack singleton unigrams.  Provide up to three discounts (for adjusted counts 1, 2, and 3+), which will be applied to all orders where the closed-form estimates fail.");
+    
+    try {
+      options.parse(argc, argv);
+      
+      // po::variables_map vm;
+      // po::store(po::parse_command_line(argc, argv, options), vm);
+
+      if (argc == 1 || help_option->is_set()) {
+        std::cerr <<
+          "Builds unpruned language models with modified Kneser-Ney smoothing.\n\n"
+          "Please cite:\n"
+          "@inproceedings{Heafield-estimate,\n"
+          "  author = {Kenneth Heafield and Ivan Pouzyrevsky and Jonathan H. Clark and Philipp Koehn},\n"
+          "  title = {Scalable Modified {Kneser-Ney} Language Model Estimation},\n"
+          "  year = {2013},\n"
+          "  month = {8},\n"
+          "  booktitle = {Proceedings of the 51st Annual Meeting of the Association for Computational Linguistics},\n"
+          "  address = {Sofia, Bulgaria},\n"
+          "  url = {http://kheafield.com/professional/edinburgh/estimate\\_paper.pdf},\n"
+          "}\n\n"
+          "Provide the corpus on stdin.  The ARPA file will be written to stdout.  Order of\n"
+          "the model (-o) is the only mandatory option.  As this is an on-disk program,\n"
+          "setting the temporary file location (-T) and sorting memory (-S) is recommended.\n\n"
+          "Memory sizes are specified like GNU sort: a number followed by a unit character.\n"
+          "Valid units are \% for percentage of memory (supported platforms only) and (in\n"
+          "increasing powers of 1024): b, K, M, G, T, P, E, Z, Y.  Default is K (*1024).\n";
+        uint64_t mem = util::GuessPhysicalMemory();
+        if (mem) {
+          std::cerr << "This machine has " << mem << " bytes of memory.\n\n";
+        } else {
+          std::cerr << "Unable to determine the amount of memory on this machine.\n\n";
+        }
+        std::cerr << options << std::endl;
+        return 1;
       }
-      std::cerr << options << std::endl;
-      return 1;
+
+      if (pipeline.vocab_size_for_unk && !pipeline.initial_probs.interpolate_unigrams) {
+        std::cerr << "--vocab_pad requires --interpolate_unigrams be on" << std::endl;
+        return 1;
+      }
+
+      if (ss_option->is_set()) {
+        pipeline.disallowed_symbol_action = lm::COMPLAIN;
+      } else {
+        pipeline.disallowed_symbol_action = lm::THROW_UP;
+      }
+
+    } catch (const popl::invalid_option& e) {
+      std::cerr << "Invalid Option Exception: " << e.what() << std::endl;
+    } catch (const std::exception &e) {
+      std::cerr << "Exception: " << e.what() << std::endl;
     }
 
-    po::notify(vm);
+    // po::notify(vm);
 
-    // required() appeared in Boost 1.42.0.
-#if BOOST_VERSION < 104200
-    if (!vm.count("order")) {
-      std::cerr << "the option '--order' is required but missing" << std::endl;
-      return 1;
-    }
-#endif
-
-    if (pipeline.vocab_size_for_unk && !pipeline.initial_probs.interpolate_unigrams) {
-      std::cerr << "--vocab_pad requires --interpolate_unigrams be on" << std::endl;
-      return 1;
-    }
-
-    if (vm["skip_symbols"].as<bool>()) {
-      pipeline.disallowed_symbol_action = lm::COMPLAIN;
-    } else {
-      pipeline.disallowed_symbol_action = lm::THROW_UP;
-    }
-
-    if (vm.count("discount_fallback")) {
+    if (df_option->count() > 0) {
       pipeline.discount.fallback = ParseDiscountFallback(discount_fallback);
       pipeline.discount.bad_action = lm::COMPLAIN;
     } else {
-      // Unused, just here to prevent the compiler from complaining about uninitialized.
       pipeline.discount.fallback = lm::builder::Discount();
       pipeline.discount.bad_action = lm::THROW_UP;
     }
 
+    // if (vm.count("discount_fallback")) {
+    //   pipeline.discount.fallback = ParseDiscountFallback(discount_fallback);
+    //   pipeline.discount.bad_action = lm::COMPLAIN;
+    // } else {
+    //   // Unused, just here to prevent the compiler from complaining about uninitialized.
+    //   pipeline.discount.fallback = lm::builder::Discount();
+    //   pipeline.discount.bad_action = lm::THROW_UP;
+    // }
+
     // parse pruning thresholds.  These depend on order, so it is not done as a notifier.
     pipeline.prune_thresholds = ParsePruning(pruning, pipeline.order);
 
-    if (!vm["limit_vocab_file"].as<std::string>().empty()) {
+    if (!lvf_option->is_set()) {
       pipeline.prune_vocab = true;
-    }
-    else {
+    } else {
       pipeline.prune_vocab = false;
     }
+
+    // if (!vm["limit_vocab_file"].as<std::string>().empty()) {
+    //   pipeline.prune_vocab = true;
+    // }
+    // else {
+    //   pipeline.prune_vocab = false;
+    // }
 
     util::NormalizeTempPrefix(pipeline.sort.temp_prefix);
 
@@ -190,26 +226,43 @@ int main(int argc, char *argv[]) {
 
     // Read from stdin, write to stdout by default
     util::scoped_fd in(0), out(1);
-    if (vm.count("text")) {
+
+    if (text_option->count()) {
       in.reset(util::OpenReadOrThrow(text.c_str()));
     }
-    if (vm.count("arpa")) {
+    
+    if (arpa_option->count()) {
       out.reset(util::CreateOrThrow(arpa.c_str()));
     }
 
+    // if (vm.count("text")) {
+    //   in.reset(util::OpenReadOrThrow(text.c_str()));
+    // }
+    // if (vm.count("arpa")) {
+    //   out.reset(util::CreateOrThrow(arpa.c_str()));
+    // }
+
     try {
-      bool writing_intermediate = vm.count("intermediate");
+      bool writing_intermediate = interm_option->count();
+      // bool writing_intermediate = vm.count("intermediate");
       if (writing_intermediate) {
         pipeline.renumber_vocabulary = true;
       }
       lm::builder::Output output(writing_intermediate ? intermediate : pipeline.sort.temp_prefix, writing_intermediate, pipeline.output_q);
-      if (!writing_intermediate || vm.count("arpa")) {
+
+      if (!writing_intermediate || arpa_option->count()) {
         output.Add(new lm::builder::PrintHook(out.release(), verbose_header));
       }
+
+      // if (!writing_intermediate || vm.count("arpa")) {
+      //   output.Add(new lm::builder::PrintHook(out.release(), verbose_header));
+      // }
+
       lm::builder::Pipeline(pipeline, in.release(), output);
     } catch (const util::MallocException &e) {
       std::cerr << e.what() << std::endl;
-      std::cerr << "Try rerunning with a more conservative -S setting than " << vm["memory"].as<std::string>() << std::endl;
+      std::cerr << "Try rerunning with a more conservative -S setting than " << sm_option->value() << std::endl;
+      // std::cerr << "Try rerunning with a more conservative -S setting than " << vm["memory"].as<std::string>() << std::endl;
       return 1;
     }
     util::PrintUsage(std::cerr);
